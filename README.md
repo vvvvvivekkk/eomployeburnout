@@ -1,212 +1,283 @@
-# 🧠 AI-Based Employee Burnout & Attrition Detection System
+<div align="center">
 
-A full-stack web application that helps HR teams detect employee burnout and attrition risk early using machine learning analysis.
+# AI-Based Employee Burnout & Attrition Detection System
+
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
+
+An intelligent HR analytics platform that leverages machine learning to identify employees at risk of burnout and attrition — enabling proactive intervention and improved workforce well-being.
+
+[Getting Started](#installation) · [Usage Guide](#usage-guide) · [API Reference](#api-reference) · [ML Architecture](#machine-learning-architecture)
+
+</div>
 
 ---
 
-## 📋 Project Overview
+## Table of Contents
 
-This system uses **Logistic Regression** and **Random Forest** classifiers to predict:
-- **Burnout Level** (Low / Medium / High)
-- **Attrition Status** (Stay / Leave)
-- **Overall Risk Level** (Low Risk / Medium Risk / High Risk)
-
-It features an interactive dashboard with real-time charts, PDF reporting, CSV import/export, and session-based authentication.
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Usage Guide](#usage-guide)
+- [Data Input Options](#data-input-options)
+- [API Reference](#api-reference)
+- [Machine Learning Architecture](#machine-learning-architecture)
+- [Future Roadmap](#future-roadmap)
+- [License](#license)
 
 ---
 
-## 🏗️ System Architecture
+## Overview
+
+Employee burnout and involuntary attrition are among the most costly challenges facing modern organizations. This system provides HR teams with a **data-driven, predictive solution** that classifies employees into risk tiers based on behavioral and performance indicators.
+
+**The system predicts three key outcomes:**
+
+| Prediction Target   | Output Classes               |
+|----------------------|------------------------------|
+| Burnout Level        | Low · Medium · High          |
+| Attrition Status     | Stay · Leave                 |
+| Overall Risk Level   | Low Risk · Medium Risk · High Risk |
+
+---
+
+## Key Features
+
+- **Dual-Model ML Pipeline** — Logistic Regression + Random Forest with automatic best-model selection
+- **Interactive Dashboard** — Real-time visualizations powered by Chart.js (burnout distribution, attrition breakdown, salary-burnout correlation)
+- **Flexible Data Input** — Upload your own CSV datasets or generate synthetic data for testing
+- **Individual Prediction** — Enter a single employee's details and receive instant risk assessment
+- **PDF Report Generation** — Export comprehensive analysis reports via ReportLab
+- **CSV Import/Export** — Full data portability with upload and download support
+- **Session-Based Authentication** — Secure login/signup with bcrypt password hashing
+- **Auto-Generated API Docs** — Swagger UI and ReDoc available out of the box
+
+---
+
+## Tech Stack
+
+| Layer                | Technology                          |
+|----------------------|-------------------------------------|
+| **Backend**          | FastAPI, Uvicorn, Starlette         |
+| **Database**         | SQLite, SQLAlchemy ORM              |
+| **Machine Learning** | Scikit-learn, Joblib                |
+| **Data Processing**  | Pandas, NumPy                       |
+| **Frontend**         | Jinja2 Templates, Chart.js          |
+| **Reporting**        | ReportLab (PDF)                     |
+| **Security**         | bcrypt, Session Middleware           |
+| **File Handling**    | python-multipart                    |
+
+---
+
+## Project Structure
 
 ```
 employee-burnout-system/
+│
 ├── app/
-│   ├── main.py                # FastAPI routes & app entry point
-│   ├── database.py            # SQLAlchemy + SQLite configuration
-│   ├── models.py              # ORM models (User, EmployeeData, Prediction)
-│   ├── schemas.py             # Pydantic validation schemas
-│   ├── dataset_generator.py   # Synthetic dataset generation (2000 records)
-│   ├── preprocessing.py       # Data cleaning, encoding, scaling, splitting
-│   ├── ml_model.py            # Model training, evaluation, saving
-│   ├── prediction.py          # Single-employee prediction with risk logic
-│   ├── report_generator.py    # PDF report generation (ReportLab)
-│   └── utils.py               # Auth helpers, password hashing, CSV export
+│   ├── main.py                 # FastAPI routes & application entry point
+│   ├── database.py             # SQLAlchemy engine & session configuration
+│   ├── models.py               # ORM models (User, EmployeeData, Prediction)
+│   ├── schemas.py              # Pydantic validation schemas
+│   ├── dataset_generator.py    # Synthetic dataset generation engine
+│   ├── preprocessing.py        # Data cleaning, encoding & feature scaling
+│   ├── ml_model.py             # Model training, evaluation & persistence
+│   ├── prediction.py           # Inference pipeline with risk classification
+│   ├── report_generator.py     # PDF report builder (ReportLab)
+│   └── utils.py                # Authentication helpers & CSV export utilities
+│
 ├── templates/
-│   ├── login.html             # Login page
-│   ├── signup.html            # Registration page
-│   ├── index.html             # Landing page
-│   ├── dashboard.html         # Main dashboard with charts
-│   └── prediction.html        # Prediction form & results
+│   ├── index.html              # Landing page
+│   ├── login.html              # User login
+│   ├── signup.html             # User registration
+│   ├── dashboard.html          # Analytics dashboard with charts
+│   └── prediction.html         # Prediction form & results display
+│
 ├── static/
-│   ├── css/style.css          # Application styles
-│   └── js/dashboard.js        # Chart.js visualizations
-├── uploads/                   # Uploaded CSV files
-├── requirements.txt           # Python dependencies
-├── README.md                  # This file
-└── employee_data.db           # SQLite database (auto-created)
+│   ├── css/style.css           # Application stylesheet
+│   └── js/dashboard.js         # Chart.js visualization logic
+│
+├── uploads/                    # User-uploaded CSV datasets
+├── requirements.txt            # Python dependencies
+├── .gitignore                  # Git ignore rules
+└── README.md                   # Project documentation
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Installation
 
-| Component          | Technology                    |
-|--------------------|-------------------------------|
-| Backend Framework  | FastAPI                       |
-| Database           | SQLite + SQLAlchemy ORM       |
-| Machine Learning   | Scikit-learn                  |
-| Data Processing    | Pandas, NumPy                 |
-| Visualization      | Chart.js                      |
-| Templating         | Jinja2 (FastAPI templates)    |
-| Model Persistence  | Joblib                        |
-| PDF Reports        | ReportLab                     |
-| Authentication     | Session-based (Starlette)     |
-| Password Hashing   | Passlib with bcrypt           |
-| File Upload        | python-multipart              |
-| API Documentation  | Swagger UI (auto via FastAPI) |
+### Prerequisites
 
----
+- Python 3.10 or higher
+- pip package manager
 
-## 📦 Installation Steps
-
-### 1. Clone or navigate to the project
+### Setup
 
 ```bash
-cd employee-burnout-system
-```
+# 1. Clone the repository
+git clone https://github.com/vvvvvivekkk/eomployeburnout.git
+cd eomployeburnout
 
-### 2. Create a virtual environment (recommended)
-
-```bash
+# 2. Create and activate a virtual environment
 python -m venv venv
-venv\Scripts\activate       # Windows
-# source venv/bin/activate  # macOS/Linux
-```
+venv\Scripts\activate           # Windows
+# source venv/bin/activate      # macOS / Linux
 
-### 3. Install dependencies
-
-```bash
+# 3. Install dependencies
 pip install -r requirements.txt
-```
 
-### 4. Run the application
-
-```bash
+# 4. Start the application
 uvicorn app.main:app --reload
 ```
 
-### 5. Open in browser
-
-```
-http://127.0.0.1:8000
-```
+The application will be available at **http://127.0.0.1:8000**
 
 ---
 
-## 🚀 How to Use
+## Usage Guide
 
-1. **Sign Up** — Create a new account
-2. **Login** — Authenticate with your credentials
-3. **Generate Dataset** — Click "Generate Dataset" to create 2000 synthetic employee records
-4. **Train Model** — Click "Train Model" to train Logistic Regression & Random Forest classifiers
-5. **Predict** — Enter employee details to get burnout/attrition predictions
-6. **Upload CSV** — Upload your own employee dataset
-7. **Download Reports** — Export CSV data or generate a PDF report
-
----
-
-## 📡 API Documentation
-
-FastAPI auto-generates interactive API documentation:
-
-- **Swagger UI**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **ReDoc**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
-
-### Key API Endpoints
-
-| Method | Endpoint         | Description                        |
-|--------|------------------|------------------------------------|
-| GET    | `/health`        | Health check with system status    |
-| POST   | `/signup`        | User registration                  |
-| POST   | `/login`         | User authentication                |
-| GET    | `/logout`        | End user session                   |
-| GET    | `/dashboard`     | Main dashboard                     |
-| GET    | `/generate-data` | Generate synthetic dataset         |
-| GET    | `/train`         | Train ML models                    |
-| POST   | `/predict`       | Make burnout/attrition prediction  |
-| POST   | `/upload-csv`    | Upload CSV employee data           |
-| GET    | `/export-csv`    | Download employee data as CSV      |
-| GET    | `/report`        | Download PDF report                |
+| Step | Action | Description |
+|------|--------|-------------|
+| 1    | **Sign Up** | Create a new user account |
+| 2    | **Log In** | Authenticate with your credentials |
+| 3    | **Load Data** | Generate synthetic data (up to 2,000 records) **or** upload your own CSV |
+| 4    | **Train Models** | Train Logistic Regression & Random Forest classifiers on the loaded data |
+| 5    | **Predict** | Enter individual employee details to receive burnout and attrition predictions |
+| 6    | **Analyze** | View dashboard charts for workforce-wide insights |
+| 7    | **Export** | Download results as CSV or generate a PDF report |
 
 ---
 
-## 🤖 Machine Learning Explanation
+## Data Input Options
 
-### Features Used
-- `working_hours` (35–70)
-- `overtime` (Yes/No → encoded as 1/0)
-- `job_satisfaction` (1–5)
-- `salary` ($20,000–$150,000)
-- `performance_rating` (1–5)
-- `years_at_company` (0–20)
+The system supports two methods for loading employee data:
+
+### 1. Synthetic Data Generation
+
+Click **"Generate Dataset"** on the dashboard to create realistic synthetic employee records with domain-driven burnout and attrition labels.
+
+### 2. CSV File Upload
+
+Upload your own dataset via the **"Upload CSV"** feature. The CSV must include the following columns:
+
+| Column | Type | Range / Values | Required |
+|--------|------|----------------|----------|
+| `working_hours` | float | 35 – 70 | Yes |
+| `overtime` | string | Yes / No | Yes |
+| `job_satisfaction` | int | 1 – 5 | Yes |
+| `salary` | float | 20,000 – 150,000 | Yes |
+| `performance_rating` | int | 1 – 5 | Yes |
+| `years_at_company` | int | 0 – 20 | Yes |
+| `burnout_level` | string | Low / Medium / High | Optional |
+| `attrition_status` | string | Stay / Leave | Optional |
+
+> **Note:** If `burnout_level` and `attrition_status` are omitted, the system will store the data for prediction-only workflows. Include them for training purposes.
+
+A sample file with 1,000 records is available at `uploads/employee_data_1000.csv`.
+
+---
+
+## API Reference
+
+Interactive API documentation is auto-generated at runtime:
+
+- **Swagger UI** — [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **ReDoc** — [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Landing page |
+| `GET` | `/health` | Health check with system status |
+| `POST` | `/signup` | Register a new user |
+| `POST` | `/login` | Authenticate and start session |
+| `GET` | `/logout` | End the current session |
+| `GET` | `/dashboard` | Main analytics dashboard |
+| `GET` | `/generate-data` | Generate synthetic employee dataset |
+| `GET` | `/train` | Train ML models on stored data |
+| `GET` | `/prediction` | Prediction form page |
+| `POST` | `/predict` | Submit employee data for prediction |
+| `POST` | `/upload-csv` | Upload a CSV dataset |
+| `GET` | `/export-csv` | Download employee data as CSV |
+| `GET` | `/report` | Generate and download PDF report |
+
+---
+
+## Machine Learning Architecture
+
+### Feature Engineering
+
+| Feature | Type | Description |
+|---------|------|-------------|
+| `working_hours` | Continuous | Weekly working hours (35–70) |
+| `overtime` | Binary | Encoded as 1 (Yes) / 0 (No) |
+| `job_satisfaction` | Ordinal | Self-reported satisfaction (1–5) |
+| `salary` | Continuous | Annual compensation ($20K–$150K) |
+| `performance_rating` | Ordinal | Manager-assessed rating (1–5) |
+| `years_at_company` | Discrete | Tenure in years (0–20) |
 
 ### Preprocessing Pipeline
-1. Remove duplicate records
-2. Handle missing values
-3. Encode categorical variables (overtime)
-4. Apply StandardScaler normalization
-5. Train/Test split (80/20)
 
-### Models Trained
-- **Logistic Regression** — Linear classification baseline
-- **Random Forest Classifier** — Ensemble method for better accuracy
+```
+Raw Data → Duplicate Removal → Missing Value Imputation → Categorical Encoding → StandardScaler → Train/Test Split (80/20)
+```
+
+### Models
+
+| Model | Role | Strengths |
+|-------|------|-----------|
+| **Logistic Regression** | Baseline classifier | Interpretable, fast training |
+| **Random Forest** | Ensemble classifier | Handles non-linearity, higher accuracy |
+
+The system evaluates both models and automatically selects the **best-performing model** for each prediction target based on test accuracy.
 
 ### Evaluation Metrics
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-- Confusion Matrix
 
-The system automatically selects the **best model** per target based on highest accuracy.
+- **Accuracy** — Overall correct prediction rate
+- **Precision** — True positive rate among predicted positives
+- **Recall** — True positive rate among actual positives
+- **F1 Score** — Harmonic mean of precision and recall
+- **Confusion Matrix** — Detailed classification breakdown
 
 ### Risk Classification Logic
-- **High Risk**: Burnout = High OR Attrition = Leave
-- **Medium Risk**: Burnout = Medium
-- **Low Risk**: Otherwise
+
+| Risk Level | Condition |
+|------------|-----------|
+| **High Risk** | Burnout = High **OR** Attrition = Leave |
+| **Medium Risk** | Burnout = Medium |
+| **Low Risk** | All other cases |
 
 ---
 
-## 📸 Screenshots
+## Future Roadmap
 
-> Screenshots can be added here after running the application.
-
-- Landing Page
-- Login / Signup
-- Dashboard with Charts
-- Prediction Form & Results
-- PDF Report
-
----
-
-## 🔮 Future Improvements
-
-- [ ] Add more ML models (SVM, XGBoost, Neural Networks)
-- [ ] Implement role-based access control (Admin, HR Manager, Viewer)
-- [ ] Add email notifications for high-risk employees
-- [ ] Time-series analysis for burnout trends
-- [ ] REST API with JWT authentication for external integrations
-- [ ] Docker containerization for easy deployment
-- [ ] Employee profile pages with historical predictions
+- [ ] Additional ML models (SVM, XGBoost, Neural Networks)
+- [ ] Role-based access control (Admin, HR Manager, Viewer)
+- [ ] Email notifications for high-risk employees
+- [ ] Time-series analysis for burnout trend tracking
+- [ ] JWT-based REST API for external integrations
+- [ ] Docker containerization for streamlined deployment
+- [ ] Employee profile pages with prediction history
 - [ ] Batch prediction from CSV upload
-- [ ] A/B testing for model comparison
-- [ ] Integration with HRIS systems
+- [ ] Model comparison and A/B testing framework
+- [ ] HRIS system integration
 
 ---
 
-## 📄 License
+## License
 
-This project is for educational and demonstration purposes.
+This project is developed for educational and demonstration purposes.
 
 ---
 
-Built with ❤️ using FastAPI, Scikit-learn, and Chart.js
+<div align="center">
+
+**Built with FastAPI · Scikit-learn · Chart.js**
+
+</div>
