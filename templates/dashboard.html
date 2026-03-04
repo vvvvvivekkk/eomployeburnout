@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Employee Burnout Detection</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">🧠 Burnout Detection</div>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link active">Dashboard</a>
+            <a href="/prediction" class="nav-link">Predict Employee</a>
+            <a href="/report" class="nav-link">Reports</a>
+            <a href="/logout" class="nav-link nav-logout">Logout ({{ user.username }})</a>
+        </div>
+        <div class="nav-toggle" onclick="toggleNav()">☰</div>
+    </nav>
+
+    <div class="main-content">
+        <!-- Flash Messages -->
+        {% if flash_messages %}
+        {% for msg in flash_messages %}
+        <div class="alert alert-{{ msg.category }}">
+            {{ msg.message }}
+            <span class="alert-close" onclick="this.parentElement.remove()">×</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>📊 Dashboard</h1>
+            <p>Overview of employee burnout and attrition analysis</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3>{{ total_employees }}</h3>
+                    <p>Total Employees</p>
+                </div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-icon">🔮</div>
+                <div class="stat-info">
+                    <h3>{{ total_predictions }}</h3>
+                    <p>Total Predictions</p>
+                </div>
+            </div>
+            <div class="stat-card stat-red">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <h3>{{ high_risk_count }}</h3>
+                    <p>High Risk Employees</p>
+                </div>
+            </div>
+            <div class="stat-card stat-orange">
+                <div class="stat-icon">🤖</div>
+                <div class="stat-info">
+                    <h3>{{ "Trained" if model_trained else "Not Trained" }}</h3>
+                    <p>Model Status</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-bar">
+            <a href="/generate-data" class="btn btn-primary" onclick="showLoading(this, 'Generating...')">
+                🔄 Generate Dataset
+            </a>
+            <a href="/train" class="btn btn-success" onclick="showLoading(this, 'Training...')">
+                🧠 Train Model
+            </a>
+            <a href="/prediction" class="btn btn-info">
+                🔮 Predict Employee
+            </a>
+
+            <!-- Upload CSV Form -->
+            <form method="POST" action="/upload-csv" enctype="multipart/form-data" class="upload-form">
+                <label class="btn btn-warning upload-label">
+                    📁 Upload CSV
+                    <input type="file" name="file" accept=".csv"
+                           onchange="this.form.submit(); showLoading(this.parentElement, 'Uploading...')" hidden>
+                </label>
+            </form>
+
+            <a href="/export-csv" class="btn btn-secondary">
+                📥 Download CSV
+            </a>
+            <a href="/report" class="btn btn-danger">
+                📄 Download PDF Report
+            </a>
+        </div>
+
+        <!-- Charts Grid -->
+        {% if total_employees > 0 %}
+        <div class="charts-grid">
+            <!-- Burnout Distribution Pie Chart -->
+            <div class="chart-card">
+                <h3>Burnout Distribution</h3>
+                <canvas id="burnoutPieChart"></canvas>
+            </div>
+
+            <!-- Attrition Distribution Bar Chart -->
+            <div class="chart-card">
+                <h3>Attrition Distribution</h3>
+                <canvas id="attritionBarChart"></canvas>
+            </div>
+
+            <!-- Model Accuracy Comparison -->
+            <div class="chart-card">
+                <h3>Model Accuracy Comparison</h3>
+                {% if metrics %}
+                <canvas id="accuracyChart"></canvas>
+                {% else %}
+                <div class="chart-placeholder">
+                    <p>Train models to see accuracy comparison</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Salary vs Burnout Scatter Plot -->
+            <div class="chart-card">
+                <h3>Salary vs Burnout</h3>
+                <canvas id="salaryBurnoutChart"></canvas>
+            </div>
+
+            <!-- Confusion Matrix -->
+            {% if metrics %}
+            <div class="chart-card">
+                <h3>Burnout Model - Confusion Matrix</h3>
+                <canvas id="confusionMatrixChart"></canvas>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <h2>No Data Available</h2>
+            <p>Generate a dataset or upload a CSV to get started.</p>
+            <a href="/generate-data" class="btn btn-primary">Generate Dataset</a>
+        </div>
+        {% endif %}
+
+        <!-- Recent Predictions Table -->
+        {% if recent_predictions %}
+        <div class="table-card">
+            <h3>📋 Recent Predictions</h3>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Working Hours</th>
+                            <th>Overtime</th>
+                            <th>Satisfaction</th>
+                            <th>Salary</th>
+                            <th>Performance</th>
+                            <th>Years</th>
+                            <th>Burnout</th>
+                            <th>Attrition</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in recent_predictions %}
+                        <tr>
+                            <td>{{ pred.working_hours }}</td>
+                            <td>{{ pred.overtime }}</td>
+                            <td>{{ pred.job_satisfaction }}</td>
+                            <td>${{ "%.2f"|format(pred.salary) }}</td>
+                            <td>{{ pred.performance_rating }}</td>
+                            <td>{{ pred.years_at_company }}</td>
+                            <td>
+                                <span class="badge badge-{{ pred.predicted_burnout|lower }}">
+                                    {{ pred.predicted_burnout }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ pred.predicted_attrition|lower }}">
+                                    {{ pred.predicted_attrition }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge badge-risk-{{ pred.risk_level|lower|replace(' ', '-') }}">
+                                    {{ pred.risk_level }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p id="loadingText">Processing...</p>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+    <script>
+        // Pass data from server to JS
+        const burnoutCounts = {{ burnout_counts | tojson }};
+        const attritionCounts = {{ attrition_counts | tojson }};
+        const salaryBurnoutData = {{ salary_burnout_data | tojson }};
+        const metrics = {{ metrics | tojson }};
+
+        // Initialize charts
+        if (document.getElementById('burnoutPieChart')) {
+            initBurnoutPieChart(burnoutCounts);
+        }
+        if (document.getElementById('attritionBarChart')) {
+            initAttritionBarChart(attritionCounts);
+        }
+        if (document.getElementById('salaryBurnoutChart')) {
+            initSalaryBurnoutChart(salaryBurnoutData);
+        }
+        if (metrics && document.getElementById('accuracyChart')) {
+            initAccuracyChart(metrics);
+        }
+        if (metrics && document.getElementById('confusionMatrixChart')) {
+            initConfusionMatrixChart(metrics);
+        }
+    </script>
+</body>
+</html>

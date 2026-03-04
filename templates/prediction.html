@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Employee - Burnout Detection</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">🧠 Burnout Detection</div>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/prediction" class="nav-link active">Predict Employee</a>
+            <a href="/report" class="nav-link">Reports</a>
+            <a href="/logout" class="nav-link nav-logout">Logout ({{ user.username }})</a>
+        </div>
+        <div class="nav-toggle" onclick="toggleNav()">☰</div>
+    </nav>
+
+    <div class="main-content">
+        <!-- Flash Messages -->
+        {% if flash_messages %}
+        {% for msg in flash_messages %}
+        <div class="alert alert-{{ msg.category }}">
+            {{ msg.message }}
+            <span class="alert-close" onclick="this.parentElement.remove()">×</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="page-header">
+            <h1>🔮 Employee Burnout Prediction</h1>
+            <p>Enter employee details to predict burnout level and attrition risk</p>
+        </div>
+
+        {% if not model_trained %}
+        <div class="alert alert-warning">
+            ⚠️ Models are not trained yet. Please <a href="/train">train models</a> first.
+        </div>
+        {% endif %}
+
+        <div class="prediction-layout">
+            <!-- Prediction Form -->
+            <div class="card prediction-form-card">
+                <h3>📝 Employee Details</h3>
+                <form method="POST" action="/predict" id="predictForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="working_hours">Working Hours (35-70)</label>
+                            <input type="number" id="working_hours" name="working_hours"
+                                   min="35" max="70" step="0.1" required value="40"
+                                   placeholder="e.g. 45">
+                        </div>
+                        <div class="form-group">
+                            <label for="overtime">Overtime</label>
+                            <select id="overtime" name="overtime" required>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="job_satisfaction">Job Satisfaction (1-5)</label>
+                            <input type="number" id="job_satisfaction" name="job_satisfaction"
+                                   min="1" max="5" required value="3"
+                                   placeholder="1-5">
+                        </div>
+                        <div class="form-group">
+                            <label for="salary">Salary ($20,000 - $150,000)</label>
+                            <input type="number" id="salary" name="salary"
+                                   min="20000" max="150000" step="100" required value="60000"
+                                   placeholder="e.g. 60000">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="performance_rating">Performance Rating (1-5)</label>
+                            <input type="number" id="performance_rating" name="performance_rating"
+                                   min="1" max="5" required value="3"
+                                   placeholder="1-5">
+                        </div>
+                        <div class="form-group">
+                            <label for="years_at_company">Years at Company (0-20)</label>
+                            <input type="number" id="years_at_company" name="years_at_company"
+                                   min="0" max="20" required value="5"
+                                   placeholder="e.g. 5">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block"
+                            {% if not model_trained %}disabled{% endif %}>
+                        🔍 Predict Burnout & Attrition
+                    </button>
+                </form>
+            </div>
+
+            <!-- Prediction Result -->
+            {% if result %}
+            <div class="card prediction-result-card">
+                <h3>📊 Prediction Results</h3>
+
+                <div class="result-grid">
+                    <div class="result-item">
+                        <label>Burnout Level</label>
+                        <span class="result-value badge badge-{{ result.predicted_burnout|lower }}">
+                            {{ result.predicted_burnout }}
+                        </span>
+                    </div>
+                    <div class="result-item">
+                        <label>Attrition Status</label>
+                        <span class="result-value badge badge-{{ result.predicted_attrition|lower }}">
+                            {{ result.predicted_attrition }}
+                        </span>
+                    </div>
+                    <div class="result-item result-risk">
+                        <label>Overall Risk Level</label>
+                        <span class="result-value badge-lg badge-risk-{{ result.risk_level|lower|replace(' ', '-') }}">
+                            {{ result.risk_level }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="result-details">
+                    <h4>Input Summary</h4>
+                    <table class="details-table">
+                        <tr><td>Working Hours</td><td>{{ result.working_hours }}</td></tr>
+                        <tr><td>Overtime</td><td>{{ result.overtime }}</td></tr>
+                        <tr><td>Job Satisfaction</td><td>{{ result.job_satisfaction }}/5</td></tr>
+                        <tr><td>Salary</td><td>${{ "%.2f"|format(result.salary) }}</td></tr>
+                        <tr><td>Performance Rating</td><td>{{ result.performance_rating }}/5</td></tr>
+                        <tr><td>Years at Company</td><td>{{ result.years_at_company }}</td></tr>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function toggleNav() {
+            document.querySelector('.nav-links').classList.toggle('nav-open');
+        }
+    </script>
+</body>
+</html>
