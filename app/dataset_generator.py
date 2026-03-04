@@ -85,7 +85,10 @@ def generate_synthetic_dataset(n_records: int = 2000) -> pd.DataFrame:
     attrition_prob = np.clip(attrition_prob, 0, 1)
 
     # ── Classify attrition status ──────────────────────────
-    attrition_status = np.where(attrition_prob >= 0.45, "Leave", "Stay")
+    # Threshold lowered from 0.45 to 0.35 to produce a more balanced dataset
+    # and ensure employees with low satisfaction + low performance are
+    # correctly labelled as "Leave".
+    attrition_status = np.where(attrition_prob >= 0.35, "Leave", "Stay")
 
     # ── Build DataFrame ────────────────────────────────────
     df = pd.DataFrame({

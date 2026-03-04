@@ -96,12 +96,20 @@ def preprocess_data(df: pd.DataFrame):
     X_scaled = scaler.fit_transform(X)
 
     # Step 7: Train/Test split (80/20)
-    X_train, X_test, y_train_burnout, y_test_burnout = train_test_split(
-        X_scaled, y_burnout, test_size=0.2, random_state=42, stratify=y_burnout
+    # IMPORTANT: Use a single split to keep features aligned with BOTH targets.
+    # Splitting twice with different stratify values produces different row
+    # orderings, which misaligns X_train with y_train_attrition.
+    indices = np.arange(len(X_scaled))
+    train_idx, test_idx = train_test_split(
+        indices, test_size=0.2, random_state=42, stratify=y_burnout
     )
-    _, _, y_train_attrition, y_test_attrition = train_test_split(
-        X_scaled, y_attrition, test_size=0.2, random_state=42, stratify=y_attrition
-    )
+
+    X_train = X_scaled[train_idx]
+    X_test = X_scaled[test_idx]
+    y_train_burnout = y_burnout[train_idx]
+    y_test_burnout = y_burnout[test_idx]
+    y_train_attrition = y_attrition[train_idx]
+    y_test_attrition = y_attrition[test_idx]
 
     return (
         X_train, X_test,

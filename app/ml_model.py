@@ -83,12 +83,12 @@ def train_models(X_train, X_test, y_train_burnout, y_test_burnout,
 
     # ── Train Burnout Models ───────────────────────────────
     # Logistic Regression
-    lr_burnout = LogisticRegression(max_iter=1000, random_state=42)
+    lr_burnout = LogisticRegression(max_iter=1000, random_state=42, class_weight="balanced")
     lr_burnout.fit(X_train, y_train_burnout)
     lr_burnout_metrics = evaluate_model(lr_burnout, X_test, y_test_burnout)
 
     # Random Forest
-    rf_burnout = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf_burnout = RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced")
     rf_burnout.fit(X_train, y_train_burnout)
     rf_burnout_metrics = evaluate_model(rf_burnout, X_test, y_test_burnout)
 
@@ -108,12 +108,12 @@ def train_models(X_train, X_test, y_train_burnout, y_test_burnout,
 
     # ── Train Attrition Models ─────────────────────────────
     # Logistic Regression
-    lr_attrition = LogisticRegression(max_iter=1000, random_state=42)
+    lr_attrition = LogisticRegression(max_iter=1000, random_state=42, class_weight="balanced")
     lr_attrition.fit(X_train, y_train_attrition)
     lr_attrition_metrics = evaluate_model(lr_attrition, X_test, y_test_attrition)
 
     # Random Forest
-    rf_attrition = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf_attrition = RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced")
     rf_attrition.fit(X_train, y_train_attrition)
     rf_attrition_metrics = evaluate_model(rf_attrition, X_test, y_test_attrition)
 
