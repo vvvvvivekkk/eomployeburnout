@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Database
+*.db
+*.sqlite3
+
+# Model artifacts
+app/*.pkl
+
+# Uploads (keep folder, ignore data files)
+uploads/*.csv
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Byte-compiled
+*.pyc

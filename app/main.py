@@ -381,16 +381,24 @@ async def upload_csv(
         # Validate required columns
         required_cols = [
             "working_hours", "overtime", "job_satisfaction",
-            "salary", "performance_rating", "years_at_company",
-            "burnout_level", "attrition_status"
+            "salary", "performance_rating", "years_at_company"
         ]
+        optional_cols = ["burnout_level", "attrition_status"]
+
         missing_cols = [c for c in required_cols if c not in df.columns]
         if missing_cols:
             set_flash(request, f"Missing columns: {', '.join(missing_cols)}", "error")
             return RedirectResponse(url="/dashboard", status_code=303)
 
+        # Add optional columns if they don't exist
+        for col in optional_cols:
+            if col not in df.columns:
+                df[col] = None
+
+        all_cols = required_cols + optional_cols
+
         # Store in database
-        count = store_dataset_in_db(df[required_cols], db)
+        count = store_dataset_in_db(df[all_cols], db)
         set_flash(request, f"Successfully uploaded {count} records from CSV.", "success")
 
     except Exception as e:
