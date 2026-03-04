@@ -14,8 +14,13 @@ Defines all routes for:
 
 import os
 import io
+import logging
 import pandas as pd
 from fastapi import FastAPI, Request, Depends, UploadFile, File, Form
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 from fastapi.responses import (
     HTMLResponse, RedirectResponse, StreamingResponse, JSONResponse
 )
@@ -194,26 +199,53 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     total_employees = db.query(EmployeeData).count()
     total_predictions = db.query(Prediction).count()
 
-    # Burnout distribution
+    # Burnout distribution (from employee dataset labels)
     employees = db.query(EmployeeData).all()
     burnout_counts = {"Low": 0, "Medium": 0, "High": 0}
-    attrition_counts = {"Stay": 0, "Leave": 0}
+    dataset_attrition_counts = {"Stay": 0, "Leave": 0}
     salary_burnout_data = []
 
     for emp in employees:
         if emp.burnout_level in burnout_counts:
             burnout_counts[emp.burnout_level] += 1
-        if emp.attrition_status in attrition_counts:
-            attrition_counts[emp.attrition_status] += 1
+        if emp.attrition_status in dataset_attrition_counts:
+            dataset_attrition_counts[emp.attrition_status] += 1
         salary_burnout_data.append({
             "salary": emp.salary,
             "burnout": emp.burnout_level,
         })
 
-    # Prediction risk counts
-    predictions = db.query(Prediction).order_by(Prediction.created_at.desc()).limit(20).all()
+    # Prediction-based attrition stats (from ML predictions)
     all_predictions = db.query(Prediction).all()
+    predicted_leave_count = sum(1 for p in all_predictions if p.predicted_attrition == "Leave")
+    predicted_stay_count = sum(1 for p in all_predictions if p.predicted_attrition == "Stay")
     high_risk_count = sum(1 for p in all_predictions if p.risk_level == "High Risk")
+
+    # Use prediction-based attrition counts if predictions exist,
+    # otherwise fall back to dataset labels
+    if total_predictions > 0:
+        attrition_counts = {
+            "Stay": predicted_stay_count,
+            "Leave": predicted_leave_count,
+        }
+        attrition_rate = round((predicted_leave_count / total_predictions) * 100, 2)
+    else:
+        attrition_counts = dataset_attrition_counts
+        total_dataset = dataset_attrition_counts["Stay"] + dataset_attrition_counts["Leave"]
+        attrition_rate = round((dataset_attrition_counts["Leave"] / total_dataset) * 100, 2) if total_dataset > 0 else 0.0
+
+    # Logging for debugging
+    logger.info("=== Dashboard Attrition Stats ===")
+    logger.info(f"Total employees in dataset: {total_employees}")
+    logger.info(f"Total predictions made: {total_predictions}")
+    logger.info(f"Predicted to Leave: {predicted_leave_count}")
+    logger.info(f"Predicted to Stay: {predicted_stay_count}")
+    logger.info(f"Attrition Rate: {attrition_rate}%")
+    logger.info(f"High Risk count: {high_risk_count}")
+    logger.info(f"Dataset attrition (labels) - Stay: {dataset_attrition_counts['Stay']}, Leave: {dataset_attrition_counts['Leave']}")
+
+    # Recent predictions for table
+    predictions = db.query(Prediction).order_by(Prediction.created_at.desc()).limit(20).all()
 
     # Training metrics
     metrics = load_training_metrics()
@@ -230,6 +262,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         recent_predictions=predictions,
         metrics=metrics,
         model_trained=model_trained,
+        attrition_rate=attrition_rate,
+        predicted_leave_count=predicted_leave_count,
     )
     return templates.TemplateResponse("dashboard.html", context)
 
@@ -496,18 +530,32 @@ async def dashboard_data(request: Request, db: Session = Depends(get_db)):
 
     employees = db.query(EmployeeData).all()
     burnout_counts = {"Low": 0, "Medium": 0, "High": 0}
-    attrition_counts = {"Stay": 0, "Leave": 0}
+    dataset_attrition_counts = {"Stay": 0, "Leave": 0}
     salary_burnout = []
 
     for emp in employees:
         if emp.burnout_level in burnout_counts:
             burnout_counts[emp.burnout_level] += 1
-        if emp.attrition_status in attrition_counts:
-            attrition_counts[emp.attrition_status] += 1
+        if emp.attrition_status in dataset_attrition_counts:
+            dataset_attrition_counts[emp.attrition_status] += 1
         salary_burnout.append({
             "salary": emp.salary,
             "burnout": emp.burnout_level,
         })
+
+    # Prediction-based attrition
+    all_predictions = db.query(Prediction).all()
+    total_predictions = len(all_predictions)
+    predicted_leave = sum(1 for p in all_predictions if p.predicted_attrition == "Leave")
+    predicted_stay = sum(1 for p in all_predictions if p.predicted_attrition == "Stay")
+
+    if total_predictions > 0:
+        attrition_counts = {"Stay": predicted_stay, "Leave": predicted_leave}
+        attrition_rate = round((predicted_leave / total_predictions) * 100, 2)
+    else:
+        attrition_counts = dataset_attrition_counts
+        total_dataset = dataset_attrition_counts["Stay"] + dataset_attrition_counts["Leave"]
+        attrition_rate = round((dataset_attrition_counts["Leave"] / total_dataset) * 100, 2) if total_dataset > 0 else 0.0
 
     metrics = load_training_metrics()
 
@@ -517,4 +565,7 @@ async def dashboard_data(request: Request, db: Session = Depends(get_db)):
         "salary_burnout": salary_burnout,
         "metrics": metrics,
         "total_employees": len(employees),
+        "total_predictions": total_predictions,
+        "predicted_leave_count": predicted_leave,
+        "attrition_rate": attrition_rate,
     }

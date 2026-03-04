@@ -6,11 +6,14 @@ Computes risk level based on burnout and attrition predictions.
 Stores predictions in the database.
 """
 
+import logging
 import numpy as np
 from sqlalchemy.orm import Session
 from app.ml_model import load_trained_models
 from app.preprocessing import preprocess_single_input
 from app.models import Prediction
+
+logger = logging.getLogger(__name__)
 
 
 def compute_risk_level(predicted_burnout: str, predicted_attrition: str) -> str:
@@ -71,6 +74,15 @@ def predict_employee(data: dict, db: Session) -> dict:
 
     # Compute risk level
     risk_level = compute_risk_level(predicted_burnout, predicted_attrition)
+
+    # Log prediction results
+    logger.info("=== New Prediction ===")
+    logger.info(f"Input: working_hours={data['working_hours']}, overtime={data['overtime']}, "
+                f"satisfaction={data['job_satisfaction']}, salary={data['salary']}, "
+                f"performance={data['performance_rating']}, years={data['years_at_company']}")
+    logger.info(f"Predicted Burnout: {predicted_burnout}")
+    logger.info(f"Predicted Attrition: {predicted_attrition}")
+    logger.info(f"Risk Level: {risk_level}")
 
     # Store prediction in database
     prediction_record = Prediction(

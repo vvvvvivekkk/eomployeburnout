@@ -61,6 +61,13 @@
                 </div>
             </div>
             <div class="stat-card stat-orange">
+                <div class="stat-icon">📉</div>
+                <div class="stat-info">
+                    <h3>{{ attrition_rate }}%</h3>
+                    <p>Attrition Rate ({{ predicted_leave_count }} predicted to leave)</p>
+                </div>
+            </div>
+            <div class="stat-card stat-orange">
                 <div class="stat-icon">🤖</div>
                 <div class="stat-info">
                     <h3>{{ "Trained" if model_trained else "Not Trained" }}</h3>
