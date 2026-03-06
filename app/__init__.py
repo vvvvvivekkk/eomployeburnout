@@ -1,1 +1,1 @@
-# AI-Based Employee Burnout & Attrition Detection System
+# AI-Based Employee Attrition Detection System

@@ -27,7 +27,7 @@ from app.ml_model import load_training_metrics
 
 def generate_pdf_report(db: Session) -> io.BytesIO:
     """
-    Generate a comprehensive PDF report of the employee burnout analysis.
+    Generate a comprehensive PDF report of the employee attrition analysis.
 
     Args:
         db: SQLAlchemy session
@@ -65,7 +65,7 @@ def generate_pdf_report(db: Session) -> io.BytesIO:
 
     # ── Title ──────────────────────────────────────────────
     elements.append(Paragraph(
-        "AI-Based Employee Burnout & Attrition Detection Report", title_style
+        "AI-Based Employee Attrition Detection Report", title_style
     ))
     elements.append(Paragraph(
         f"Generated on: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}", body_style
@@ -272,7 +272,7 @@ def generate_pdf_report(db: Session) -> io.BytesIO:
         textColor=colors.grey, alignment=1
     )
     elements.append(Paragraph(
-        "AI-Based Employee Burnout & Attrition Detection System — Confidential Report",
+        "AI-Based Employee Attrition Detection System — Confidential Report",
         footer_style
     ))
 

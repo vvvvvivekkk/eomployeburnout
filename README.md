@@ -1,13 +1,13 @@
 <div align="center">
 
-# AI-Based Employee Burnout & Attrition Detection System
+# AI-Based Employee Attrition Detection System
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 
-An intelligent HR analytics platform that leverages machine learning to identify employees at risk of burnout and attrition — enabling proactive intervention and improved workforce well-being.
+An intelligent HR analytics platform that leverages machine learning to identify employees at risk of attrition — enabling proactive intervention and improved workforce well-being.
 
 [Getting Started](#installation) · [Usage Guide](#usage-guide) · [API Reference](#api-reference) · [ML Architecture](#machine-learning-architecture)
 
@@ -33,7 +33,7 @@ An intelligent HR analytics platform that leverages machine learning to identify
 
 ## Overview
 
-Employee burnout and involuntary attrition are among the most costly challenges facing modern organizations. This system provides HR teams with a **data-driven, predictive solution** that classifies employees into risk tiers based on behavioral and performance indicators.
+Employee attrition is among the most costly challenges facing modern organizations. This system provides HR teams with a **data-driven, predictive solution** that classifies employees into risk tiers based on behavioral and performance indicators.
 
 **The system predicts three key outcomes:**
 
@@ -48,7 +48,7 @@ Employee burnout and involuntary attrition are among the most costly challenges 
 ## Key Features
 
 - **Dual-Model ML Pipeline** — Logistic Regression + Random Forest with automatic best-model selection
-- **Interactive Dashboard** — Real-time visualizations powered by Chart.js (burnout distribution, attrition breakdown, salary-burnout correlation)
+- **Interactive Dashboard** — Real-time visualizations powered by Chart.js (attrition breakdown, salary correlation)
 - **Flexible Data Input** — Upload your own CSV datasets or generate synthetic data for testing
 - **Individual Prediction** — Enter a single employee's details and receive instant risk assessment
 - **PDF Report Generation** — Export comprehensive analysis reports via ReportLab
@@ -76,7 +76,7 @@ Employee burnout and involuntary attrition are among the most costly challenges 
 ## Project Structure
 
 ```
-employee-burnout-system/
+employee-attrition-system/
 │
 ├── app/
 │   ├── main.py                 # FastAPI routes & application entry point
@@ -120,8 +120,8 @@ employee-burnout-system/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/vvvvvivekkk/eomployeburnout.git
-cd eomployeburnout
+git clone https://github.com/vvvvvivekkk/employeeattrition.git
+cd employeeattrition
 
 # 2. Create and activate a virtual environment
 python -m venv venv
@@ -147,7 +147,7 @@ The application will be available at **http://127.0.0.1:8000**
 | 2    | **Log In** | Authenticate with your credentials |
 | 3    | **Load Data** | Generate synthetic data (up to 2,000 records) **or** upload your own CSV |
 | 4    | **Train Models** | Train Logistic Regression & Random Forest classifiers on the loaded data |
-| 5    | **Predict** | Enter individual employee details to receive burnout and attrition predictions |
+| 5    | **Predict** | Enter individual employee details to receive attrition predictions |
 | 6    | **Analyze** | View dashboard charts for workforce-wide insights |
 | 7    | **Export** | Download results as CSV or generate a PDF report |
 
@@ -159,7 +159,7 @@ The system supports two methods for loading employee data:
 
 ### 1. Synthetic Data Generation
 
-Click **"Generate Dataset"** on the dashboard to create realistic synthetic employee records with domain-driven burnout and attrition labels.
+Click **"Generate Dataset"** on the dashboard to create realistic synthetic employee records with domain-driven attrition labels.
 
 ### 2. CSV File Upload
 
@@ -260,7 +260,7 @@ The system evaluates both models and automatically selects the **best-performing
 - [ ] Additional ML models (SVM, XGBoost, Neural Networks)
 - [ ] Role-based access control (Admin, HR Manager, Viewer)
 - [ ] Email notifications for high-risk employees
-- [ ] Time-series analysis for burnout trend tracking
+- [ ] Time-series analysis for attrition trend tracking
 - [ ] JWT-based REST API for external integrations
 - [ ] Docker containerization for streamlined deployment
 - [ ] Employee profile pages with prediction history

@@ -45,13 +45,13 @@ from app.utils import (
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 app = FastAPI(
-    title="AI-Based Employee Burnout & Attrition Detection System",
-    description="HR tool to detect employee burnout and attrition risk using ML",
+    title="AI-Based Employee Attrition Detection System",
+    description="HR tool to detect employee attrition risk using ML",
     version="1.0.0",
 )
 
 # Session middleware for authentication
-app.add_middleware(SessionMiddleware, secret_key="burnout-detection-secret-key-2026")
+app.add_middleware(SessionMiddleware, secret_key="attrition-detection-secret-key-2026")
 
 # Static files and templates
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
@@ -476,7 +476,7 @@ async def report(request: Request, db: Session = Depends(get_db)):
         return StreamingResponse(
             pdf_buffer,
             media_type="application/pdf",
-            headers={"Content-Disposition": "attachment; filename=burnout_report.pdf"},
+            headers={"Content-Disposition": "attachment; filename=attrition_report.pdf"},
         )
     except Exception as e:
         set_flash(request, f"Report generation error: {str(e)}", "error")
