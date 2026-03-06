@@ -178,7 +178,11 @@ Upload your own dataset via the **"Upload CSV"** feature. The CSV must include t
 
 > **Note:** If `burnout_level` and `attrition_status` are omitted, the system will store the data for prediction-only workflows. Include them for training purposes.
 
-A sample file with 1,000 records is available at `uploads/employee_data_1000.csv`.
+Sample files are available in the `uploads/` directory:
+
+- `uploads/employee_data_500.csv` — 500 employee records
+- `uploads/employee_data_1000.csv` — 1,000 employee records
+- `uploads/employee_data_1000_v2.csv` — 1,000 employee records (alternate dataset)
 
 ---
 
